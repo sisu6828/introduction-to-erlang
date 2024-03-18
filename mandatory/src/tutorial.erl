@@ -2,20 +2,12 @@
 
 -module(tutorial).
 
--export([hello/0, hello/1,
-	 fac/1, fac_tr/1,
-	 right_triangles/1,
-	 simpsons/0, simpsons/1,
-	 char_to_upper/1, char_to_lower/1,
-	 str_to_upper/1, str_to_lower/1,
-	 max/1, count/2,
-	 odd_and_even/1
-	]).
-
+-export([hello/0, hello/1, fac/1, fac_tr/1, right_triangles/1, simpsons/0, simpsons/1,
+         char_to_upper/1, char_to_lower/1, str_to_upper/1, str_to_lower/1, max/1, count/2,
+         odd_and_even/1]).
 
 %% @doc Prints "Hello!" to the terminal.
 -spec hello() -> ok.
-
 hello() ->
     io:format("Hello!~n").
 
@@ -24,13 +16,12 @@ hello() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% @doc TODO: add description here
--spec hello(N::integer()) -> ok.
-
+-spec hello(N :: integer()) -> ok.
 hello(0) ->
     ok;
 hello(N) ->
     io:format("~p Hello!~n", [N]),
-    hello(N-1).
+    hello(N - 1).
 
 %% @doc The factorial function.
 %% === Example ===
@@ -48,31 +39,29 @@ hello(N) ->
 %%  {9,362880},
 %%  {10,3628800}]'''
 %% </div>
--spec fac(N::integer()) -> integer().
-
-fac(0) -> 1;
-fac(N) -> N*fac(N-1).
+-spec fac(N :: integer()) -> integer().
+fac(0) ->
+    1;
+fac(N) ->
+    N * fac(N - 1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%  Tail Recursive functions %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% @doc The factorial function, implemented using tail recursion.
--spec fac_tr(N::integer()) -> integer().
-
+-spec fac_tr(N :: integer()) -> integer().
 fac_tr(N) ->
-    fac_tr(N,1).
+    fac_tr(N, 1).
 
 fac_tr(0, Acc) ->
     Acc;
 fac_tr(N, Acc) ->
     tbi.
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%  List Comprehensions %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 %% @doc Generates a list of tuples {A,B,C} such that A and B are sides
 %% in a right triangle with hypotenuse C, where `A,B,C <= N'.
@@ -81,17 +70,16 @@ fac_tr(N, Acc) ->
 %% > tutorial:right_triangles(10).
 %% [{3,4,5},{4,3,5},{6,8,10},{8,6,10}]'''
 %% </div>
--spec right_triangles(N) -> [{A,B,C}] when
-      N::integer(),
-      A::integer(),
-      B::integer(),
-      C::integer().
-
+-spec right_triangles(N) -> [{A, B, C}]
+    when N :: integer(),
+         A :: integer(),
+         B :: integer(),
+         C :: integer().
 right_triangles(N) ->
     L = lists:seq(1, N),
     tbi.
 
-%% @doc Returns a list of tuples, where each tuple describes a caracter in the Simposon family.
+%% @doc Returns a list of tuples, where each tuple describes a character in the Simpson family.
 %%
 %% === Example ===
 %% <div class="example">```
@@ -104,21 +92,18 @@ right_triangles(N) ->
 %%  {person,female,"Marge"},
 %%  {pig,male,"Spider Pig"}]'''
 %% </div>
--spec simpsons() -> [{Type, Gender, Name}] when
-      Type::person|cat|dog|pig,
-      Gender::male|female,
-      Name::string().
-
+-spec simpsons() -> [{Type, Gender, Name}]
+    when Type :: person | cat | dog | pig,
+         Gender :: male | female,
+         Name :: string().
 simpsons() ->
-    [
-     {person, male, "Bart"},
+    [{person, male, "Bart"},
      {cat, female, "Snowball II"},
      {person, male, "Homer"},
      {person, female, "Lisa"},
      {dog, male, "Santa's Little Helper"},
      {person, female, "Marge"},
-     {pig, male, "Spider Pig"}
-    ].
+     {pig, male, "Spider Pig"}].
 
 %% @doc Returns a filtered list of names of characters in the Simpson family.
 %% === Example ===
@@ -134,10 +119,9 @@ simpsons() ->
 %% ["Snowball II","Santa's Little Helper","Spider Pig"]'''
 %% </div>
 
--spec simpsons(Filter) -> [Name] when
-      Filter::names|males|females|pets,
-      Name::string().
-
+-spec simpsons(Filter) -> [Name]
+    when Filter :: names | males | females | pets,
+         Name :: string().
 simpsons(names) ->
     tbi;
 simpsons(males) ->
@@ -160,8 +144,7 @@ simpsons(pets) ->
 %% 64'''
 %% </div>
 -spec char_to_upper(char()) -> char().
-
-char_to_upper(Char) when true->
+char_to_upper(Char) when true ->
     tbi.
 
 %% @doc Convert a character to lower case.
@@ -173,7 +156,6 @@ char_to_upper(Char) when true->
 %% 64'''
 %% </div>
 -spec char_to_lower(char()) -> char().
-
 char_to_lower(Char) when true ->
     tbi.
 
@@ -190,10 +172,8 @@ char_to_lower(Char) when true ->
 %% "ERLANG"'''
 %% </div>
 -spec str_to_upper(string()) -> string().
-
 str_to_upper(String) ->
     tbi.
-
 
 %% @doc Convert a string to lower case.
 %% === Example ===
@@ -202,7 +182,6 @@ str_to_upper(String) ->
 %% "upper + lower"'''
 %% </div>
 -spec str_to_lower(string()) -> string().
-
 str_to_lower(String) ->
     tbi.
 
@@ -216,14 +195,12 @@ str_to_lower(String) ->
 %% 8> tutorial:max([4,-1,8, 0, 3]).
 %% 8'''
 %% </div>
--spec max(L) -> M when
-      L::[integer()],
-      M::integer().
-
+-spec max(L) -> M
+    when L :: [integer()],
+         M :: integer().
 max([H | T]) ->
     F = tbi,
     lists:foldl(F, H, T).
-
 
 %% @doc Returns the number of times Char occurs in String.
 %% === Example ===
@@ -232,16 +209,13 @@ max([H | T]) ->
 %% 3'''
 %% </div>
 
--spec count(String, Char) -> integer() when
-      String::string(),
-      Char::char().
-
+-spec count(String, Char) -> integer()
+    when String :: string(),
+         Char :: char().
 count(String, Char) ->
-
     F = tbi,
 
     lists:foldl(F, 0, String).
-
 
 %% @doc Returns a tuple {{odd, Odd}, {even, Even}} where Odd and Even
 %% are lists with all the odd and even numbers in List.
@@ -250,15 +224,15 @@ count(String, Char) ->
 %% > tutorial:odd_and_even(lists:seq(1,10)).
 %% {{odd,[9,7,5,3,1]},{even,[10,8,6,4,2]}}'''
 %% </div>
--spec odd_and_even(List) -> {{odd, Odd},{even, Even}} when
-      List::[integer()],
-      Odd::[integer()],
-      Even::[integer()].
-
+-spec odd_and_even(List) -> {{odd, Odd}, {even, Even}}
+    when List :: [integer()],
+         Odd :: [integer()],
+         Even :: [integer()].
 odd_and_even(List) ->
-    F = fun(X, {{odd, Odd}, {even, Even}}) when X rem 2 == 0 ->
+    F = fun (X, {{odd, Odd}, {even, Even}}) when X rem 2 == 0 ->
                 {{odd, Odd}, {even, [X | Even]}};
-           (X, {{odd, Odd}, {even, Even}})  -> tbi
+            (X, {{odd, Odd}, {even, Even}}) ->
+                tbi
         end,
 
     lists:foldl(F, {{odd, []}, {even, []}}, List).
