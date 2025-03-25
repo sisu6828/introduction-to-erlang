@@ -10,6 +10,7 @@
 
 %% @doc Creates an empty FIFO buffer.
 -opaque fifo()::{fifo, list(), list()}.
+% -export([fifo/0]).
 -spec new() -> fifo().
 
 %% Represent the FIFO using a 3-tuple {fifo, In, Out} where In and
@@ -18,6 +19,7 @@
 new() -> {fifo, [], []}.
 
 %% @doc TODO Add a description
+%% returns the length of the fifo
 -spec size(Fifo) -> integer() when
       Fifo::fifo().
 
@@ -31,7 +33,7 @@ size({fifo, In, Out}) ->
 %% In.
 
 push({fifo, In, Out}, X) ->
-    tbi.
+    {fifo, [X|In], Out}.
 
 %% @doc TODO Add a description
 %% @throws 'empty fifo'
@@ -45,14 +47,14 @@ pop({fifo, [], []}) ->
 %% To make pop fast we want to pop of the head of the Out list.
 
 pop({fifo, In, [H|T]}) ->
-    tbi;
+    {H,{fifo,In,T}};
 
 %% When Out is empty, we must take a performance penalty. Use the
 %% reverse of In as the new Out and an empty lists as the new In, then
 %% pop as usual.
 
 pop({fifo, In, []}) ->
-    tbi.
+    pop({fifo,[],lists:reverse(In)}).
 
 
 %% @doc TODO Add a description
