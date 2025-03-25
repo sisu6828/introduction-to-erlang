@@ -67,7 +67,12 @@ empty(Fifo) ->
 -spec pop(Fifo) -> term() when Fifo::sfifo().
 
 pop(Fifo) ->
-    tbi.
+    Fifo ! {pop, self()},
+    receive
+        term() ->
+            term();
+        _ ->
+    end.
 
 
 %% @doc Push a new value to Fifo.
