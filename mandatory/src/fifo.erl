@@ -18,7 +18,7 @@
 
 new() -> {fifo, [], []}.
 
-%% @doc TODO Add a description
+%% @doc 
 %% returns the length of the fifo
 -spec size(Fifo) -> integer() when
     Fifo :: fifo().
@@ -26,8 +26,8 @@ new() -> {fifo, [], []}.
 size({fifo, In, Out}) ->
     length(In) + length(Out).
 
-%% @doc TODO Add a description
-%% TODO: add a -spec type declaration
+%% @doc 
+%% Returns a new queue with the element pushed
 -spec push(Fifo :: fifo(), X :: any()) -> fifo().
 %% To make it fast to push new values, add a new value to the head of
 %% In.
@@ -35,7 +35,7 @@ size({fifo, In, Out}) ->
 push({fifo, In, Out}, X) ->
     {fifo, [X | In], Out}.
 
-%% @doc TODO Add a description
+%% @doc Returns a new queue with the element pushed
 %% @throws 'empty fifo'
 
 -spec pop(Fifo :: fifo()) -> {Value:: any(), fifo()}.
@@ -54,7 +54,7 @@ pop({fifo, In, [H | T]}) ->
 pop({fifo, In, []}) ->
     pop({fifo, [], lists:reverse(In)}).
 
-%% @doc TODO Add a description
+%% @doc
 %% Returns whether the fifo is empty or not by checking both the in and our out queue
 -spec empty(Fifo) -> boolean() when Fifo :: fifo().
 
