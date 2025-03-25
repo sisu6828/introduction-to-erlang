@@ -9,8 +9,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %% @doc Creates an empty FIFO buffer.
--opaque fifo()::{fifo, list(), list()}.
-% -export([fifo/0]).
+-opaque fifo() :: {fifo, list(), list()}.
+-export_type([fifo/0]).
 -spec new() -> fifo().
 
 %% Represent the FIFO using a 3-tuple {fifo, In, Out} where In and
@@ -21,44 +21,42 @@ new() -> {fifo, [], []}.
 %% @doc TODO Add a description
 %% returns the length of the fifo
 -spec size(Fifo) -> integer() when
-      Fifo::fifo().
+    Fifo :: fifo().
 
 size({fifo, In, Out}) ->
     length(In) + length(Out).
 
 %% @doc TODO Add a description
 %% TODO: add a -spec type declaration
-
+-spec push(Fifo :: fifo(), X :: any()) -> fifo().
 %% To make it fast to push new values, add a new value to the head of
 %% In.
 
 push({fifo, In, Out}, X) ->
-    {fifo, [X|In], Out}.
+    {fifo, [X | In], Out}.
 
 %% @doc TODO Add a description
 %% @throws 'empty fifo'
-%% TODO: add a -spec type declaration
 
+-spec pop(Fifo :: fifo()) -> {Value:: any(), fifo()}.
 %% pop should return {Value, NewFifo}
 
 pop({fifo, [], []}) ->
     erlang:error('empty fifo');
-
 %% To make pop fast we want to pop of the head of the Out list.
 
-pop({fifo, In, [H|T]}) ->
-    {H,{fifo,In,T}};
-
+pop({fifo, In, [H | T]}) ->
+    {H, {fifo, In, T}};
 %% When Out is empty, we must take a performance penalty. Use the
 %% reverse of In as the new Out and an empty lists as the new In, then
 %% pop as usual.
 
 pop({fifo, In, []}) ->
-    pop({fifo,[],lists:reverse(In)}).
-
+    pop({fifo, [], lists:reverse(In)}).
 
 %% @doc TODO Add a description
--spec empty(Fifo) -> boolean() when Fifo::fifo().
+%% Returns whether the fifo is empty or not by checking both the in and our out queue
+-spec empty(Fifo) -> boolean() when Fifo :: fifo().
 
 empty({fifo, [], []}) ->
     true;
@@ -74,18 +72,18 @@ empty({fifo, _, _}) ->
 %% All functions with names ending wiht _test() or _test_() will be
 %% called automatically by fifo:test()
 
-
 new_test_() ->
-    [?_assertEqual({fifo, [], []}, new()),
-     ?_assertMatch(0, fifo:size(new())),
-     ?_assertException(error, 'empty fifo', pop(new()))].
+    [
+        ?_assertEqual({fifo, [], []}, new()),
+        ?_assertMatch(0, fifo:size(new())),
+        ?_assertException(error, 'empty fifo', pop(new()))
+    ].
 
 push_test() ->
     push(new(), a).
 
 push_pop_test() ->
-    ?assertMatch({a,_}, pop(push(new(), a))).
-
+    ?assertMatch({a, _}, pop(push(new(), a))).
 
 f1() ->
     push(push(push(new(), foo), bar), "Ahloa!").
@@ -95,17 +93,20 @@ size_test_() ->
     F2 = push(F1, atom),
     {_, F3} = fifo:pop(F2),
 
-    [?_assertMatch(3, fifo:size(F1)),
-     ?_assertMatch(4, fifo:size(F2)),
-     ?_assertMatch(3, fifo:size(F3))].
-
+    [
+        ?_assertMatch(3, fifo:size(F1)),
+        ?_assertMatch(4, fifo:size(F2)),
+        ?_assertMatch(3, fifo:size(F3))
+    ].
 
 push_test_() ->
     F1 = f1(),
     F2 = push(f1(), last),
 
-    [ ?_assertMatch(1, fifo:size(fifo:push(fifo:new(), a))),
-      ?_assertEqual(fifo:size(F1) + 1, fifo:size(F2))].
+    [
+        ?_assertMatch(1, fifo:size(fifo:push(fifo:new(), a))),
+        ?_assertEqual(fifo:size(F1) + 1, fifo:size(F2))
+    ].
 
 empty_test_() ->
     F = f1(),
@@ -113,8 +114,10 @@ empty_test_() ->
     {_, F3} = pop(F2),
     {_, F4} = pop(F3),
 
-    [?_assertMatch(true, empty(new())),
-     ?_assertMatch(false, empty(F)),
-     ?_assertMatch(false, empty(F2)),
-     ?_assertMatch(false, empty(F3)),
-     ?_assertMatch(true, empty(F4))].
+    [
+        ?_assertMatch(true, empty(new())),
+        ?_assertMatch(false, empty(F)),
+        ?_assertMatch(false, empty(F2)),
+        ?_assertMatch(false, empty(F3)),
+        ?_assertMatch(true, empty(F4))
+    ].
