@@ -233,7 +233,10 @@ max([H | T]) ->
     when String :: string(),
          Char :: char().
 count(String, Char) ->
-    F = tbi,
+    F = fun(C, Acc) when C =:= Char -> Acc + 1;
+          (_, Acc) -> Acc
+    end,
+        
 
     lists:foldl(F, 0, String).
 
