@@ -28,24 +28,26 @@ new() ->
 
 loop(Fifo) ->
     receive
-	{size, PID} ->
-	    PID ! {size, fifo:size(Fifo)},
-	    loop(Fifo);
-	{empty, PID} ->
-	    PID ! fifo:empty(Fifo),
-	    loop(Fifo);
-	{pop, PID} ->
-        Result = fifo:empty(Fifo),
-        if Result == true ->
-            PID ! {error, 'empty queue'};
-            true ->
-	    PID ! fifo:pop(Fifo)
-        end,
-	    loop(Fifo);
-    {push, Value,PID} ->
-        PID ! fifo:push(Fifo,Value),
-        PID ! ok,
-        loop(Fifo)
+        {size, PID} ->
+            PID ! {size, fifo:size(Fifo)},
+            loop(Fifo);
+        {empty, PID} ->
+            PID ! fifo:empty(Fifo),
+            loop(Fifo);
+        {pop, PID} ->
+            case fifo:empty(Fifo) of
+                true ->
+                    PID ! {error, 'empty fifo'},
+                    loop(Fifo);
+                false ->
+                    {Value, NewFifo} = fifo:pop(Fifo),
+                    PID ! Value,
+                    loop(NewFifo)
+            end;
+        {push, Value, PID} ->
+            NewFifo = fifo:push(Fifo, Value),
+            PID ! ok,
+            loop(NewFifo) % Update the state with the new queue
     end.
 
 %%  By hiding the message passing protocol inside a functional
@@ -96,6 +98,12 @@ push(Fifo, Value) ->
         X -> X
     end.
 
+% -spec show(Fifo) -> fifo() when Fifo :: sfifo().
+% show(Fifo) ->
+%     Fifo ! {show, self()},
+%     receive
+%         X -> X
+%     end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         EUnit Test Cases                                  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,4 +144,4 @@ large_push_pop_test() ->
     F = new(),
     List = lists:seq(1, 999),
     [push(F, Value) || Value <- List],
-    ?assertEqual([pop(F) || _ <- List], List).
+    ?assertEqual(List, [pop(F) || _ <- List]).
