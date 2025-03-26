@@ -11,9 +11,14 @@
 -export([start/0]).
 
 start() ->
-    spawn(fun() -> worker() end),
-    timer:sleep(5000).
+    process_flag(trap_exit, true),
+    spawn_link(fun() -> worker() end),
+    
+    receive
+        {'EXIT', PID, REASON} ->
+            io:format ("Worker ~p terminated with reason ~w!~n", [PID, REASON])
+    end.
 
 worker() ->
-    timer:sleep(3000),
+    timer:sleep(30),
     exit(some_error).
