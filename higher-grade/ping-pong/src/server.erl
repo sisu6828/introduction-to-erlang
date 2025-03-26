@@ -130,11 +130,17 @@ loop() ->
             exit(simulated_bug),
             From ! {pong, blopp},
             loop();
+        {ping, ding, From} ->
+            From ! {pong, dong},
+            loop();
         {ping, dddding, From} ->
             From ! {pong, dong},
             loop();
         {ping, ping, From} ->
             From ! {pong, pong},
+            loop();
+        {ping, king, From} ->
+            From ! {pong, kong},
             loop();
         {ping, tick, From} ->
             From ! {pong, tock},
@@ -143,9 +149,11 @@ loop() ->
             From ! {stop, ok};
         {update, From}  ->
             %% TODO: Trigger a hot code swap.
-            tbi;
+            io:format("loop/0: Hot code swap~n"),
+            From ! {update, ok},
+            ?MODULE:loop();
         Msg ->
-            io:format("loop/0: Unknown message: ~p~n", [Msg]),
+            io:format("loop/0: Server says: Unknown message: ~p~n", [Msg]),
             loop()
     end.
 

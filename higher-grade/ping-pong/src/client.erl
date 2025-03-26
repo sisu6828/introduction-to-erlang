@@ -37,9 +37,9 @@ ping(Server, Ping) ->
             io:format("~s - ????~n", [Ping]),
             unknown;
         Msg ->
-            io:format("ping/2: Unknown message: ~p~n", [Msg])
+            io:format("ping/2: Client Says: Unknown message: ~p~n", [Msg])
     after 500  ->
-            io:format("ping/2: Timeout~n")
+            io:format("ping/2: Client Says: Timeout~n")
         end.
 
 %% @doc Adds the pair `Ping' and `Pong' to the registered stateful server. If `Ping'
