@@ -8,6 +8,7 @@
 -module(sfifo).
 
 -export([new/0, size/1, push/2, pop/1, empty/1]).
+-export_type([sfifo/0]).
 
 %% To use EUnit we must include this:
 -include_lib("eunit/include/eunit.hrl").
@@ -34,14 +35,16 @@ loop(Fifo) ->
 	    PID ! fifo:empty(Fifo),
 	    loop(Fifo);
 	{pop, PID} ->
-        if fifo:empty(Fifo) == true ->
-            {error, 'empty queue'};
+        Result = fifo:empty(Fifo),
+        if Result == true ->
+            PID ! {error, 'empty queue'};
             true ->
-	    PID ! fifo:pop(Fifo),
-        end
+	    PID ! fifo:pop(Fifo)
+        end,
 	    loop(Fifo);
     {push, Value,PID} ->
         PID ! fifo:push(Fifo,Value),
+        PID ! ok,
         loop(Fifo)
     end.
 
@@ -90,7 +93,7 @@ push(Fifo, Value) ->
     Fifo ! {push, Value, self()},
 
     receive
-        {ok} -> ok
+        X -> X
     end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
