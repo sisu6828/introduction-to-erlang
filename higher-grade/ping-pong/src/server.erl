@@ -44,7 +44,6 @@
 %% @doc The initial state of the stateful server.
 
 -spec pairs() -> map().
-
 pairs() ->
     #{ping => pong,
       tick => tock,
@@ -53,17 +52,19 @@ pairs() ->
 
 %% @doc Starts the server.
 
--spec start(Stateful, Supervised) -> Server when
-      Stateful :: boolean(),
-      Supervised :: boolean(),
-      Server :: pid().
+-spec start(Stateful, Supervised) -> Server
+    when Stateful :: boolean(),
+         Supervised :: boolean(),
+         Server :: pid().
+start() ->
+    start(true,true).
 
 start(false, false) ->
-    spawn(fun() -> loop() end);
+    spawn(fun() -> loop_stateless() end);
 start(false, true) ->
     spawn(fun() -> supervisor(false) end);
 start(true, false) ->
-    spawn(fun() -> loop(pairs()) end);
+    spawn(fun() -> loop_statefull(pairs()) end);
 start(true, true) ->
     spawn(fun() -> supervisor(true) end).
 
