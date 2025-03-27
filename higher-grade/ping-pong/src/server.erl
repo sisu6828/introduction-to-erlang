@@ -73,11 +73,39 @@ start(true, true) ->
 %% server terminates due to an error, the supervisor should make a recursive
 %% call to it self to restart the server.
 
--spec supervisor(Stateful) -> ok when
-      Stateful :: boolean().
-
+-spec supervisor(Stateful) -> ok when Stateful :: boolean().
 supervisor(Stateful) ->
-    tbi.
+    io:format("Supervisor started~n"),
+    io:format("Stateful:s value is : ~w~n", [Stateful]),
+    case Stateful of
+        true ->
+            process_flag(trap_exit, true),
+            Server = spawn_link(fun() -> loop_statefull(pairs()) end);
+        false ->
+            process_flag(trap_exit, true),
+            Server = spawn_link(fun() -> loop_stateless() end)
+    end,
+
+    Server ! {alive, self()},
+    receive
+        {alive, X, POG} ->
+            io:format("Server ~p ~w is alive~n", [X, POG])
+    after 500 ->
+        io:format("Server is not alive~n"),
+        supervisor(Stateful)
+    end,
+    register(server, Server),
+    ok,
+    receive
+        {'EXIT', PID, REASON} ->
+            io:format("Server ~p terminated with reason: ~w!~n", [PID, REASON]),
+            io:format("Supervisor restarting server...~n~n~n"),
+
+            supervisor(Stateful);
+        {Msg} ->
+            io:format("supervisor/1: Unknown message: ~p~n", [Msg])
+    end,
+    io:format("Supervisor terminated, we should never get here~n").
 
 %% @doc Terminates the supervised server.
 
