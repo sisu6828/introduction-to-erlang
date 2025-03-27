@@ -110,13 +110,10 @@ supervisor(Stateful) ->
 %% @doc Terminates the supervised server.
 
 -spec stop() -> ok | error.
-
 stop() ->
     stop(server).
 
--spec stop(Server) -> ok | error when
-      Server :: pid().
-
+-spec stop(Server) -> ok | error when Server :: pid().
 %% @doc Terminates the unsupervised server.
 
 stop(Server) ->
@@ -132,15 +129,12 @@ stop(Server) ->
 %% @doc Makes the supervised server perform a hot code swap.
 
 -spec update() -> ok | error.
-
 update() ->
     update(server).
 
 %% @doc Makes the unsupervised server perform a hot code swap.
 
--spec update(Server) -> ok | error when
-      Server :: pid().
-
+-spec update(Server) -> ok | error when Server :: pid().
 update(Server) ->
     Server ! {update, self()},
     receive
@@ -155,60 +149,84 @@ update(Server) ->
 %% track of a static number of ablaut reduplication pairs. Each pair is handled
 %% by a separate message receive pattern.
 
--spec loop() -> {stop, ok}.
-
-loop() ->
+-spec loop_stateless() -> {stop, ok}.
+loop_stateless() ->
     receive
         {ping, blipp, From} ->
+            io:format("Stateless sever got a cursed blipp and will now die without "
+                      "replying~n"),
             exit(simulated_bug),
             From ! {pong, blopp},
-            loop();
+            loop_stateless();
         {ping, ding, From} ->
             From ! {pong, dong},
-            loop();
+            loop_stateless();
         {ping, dddding, From} ->
             From ! {pong, dong},
-            loop();
+            loop_stateless();
         {ping, ping, From} ->
             From ! {pong, pong},
-            loop();
+            loop_stateless();
         {ping, king, From} ->
             From ! {pong, kong},
-            loop();
+            loop_stateless();
         {ping, tick, From} ->
             From ! {pong, tock},
-            loop();
+            loop_stateless();
         {stop, From} ->
-            From ! {stop, ok};
-        {update, From}  ->
+            From ! {stop, ok},
+            exit(stop);
+        {update, From} ->
             %% TODO: Trigger a hot code swap.
-            io:format("loop/0: Hot code swap~n"),
+            io:format("loop/0: Server says: Stateless Hot code swap~n"),
             From ! {update, ok},
-            ?MODULE:loop();
+            ?MODULE:loop_stateless();
+        {alive, From} ->
+            From ! {alive, stateless, self()},
+            loop_stateless();
         Msg ->
             io:format("loop/0: Server says: Unknown message: ~p~n", [Msg]),
-            loop()
+            loop_stateless()
     end.
-
 
 %% @doc The process loop for the statefull server. The stateful server keeps
 %% track of dynamic number of ablaut reduplication pairs using a <a
 %% target="_blank" href="https://erlang.org/doc/man/Pairss.html">Map</a>.
 
--spec loop(Pairs) -> {stop, ok} when
-      Pairs :: map().
-
-loop(Pairs) ->
+-spec loop_statefull(Pairs) -> {stop, ok} when Pairs :: map().
+loop_statefull(Pairs) ->
     receive
-        {ping, flip, From} ->
+        {ping, flip, _From} ->
             exit(simulated_bug);
         {ping, Ping, From} ->
-            %% TODO: send correct reply.
-            loop(Pairs);
-        %% TODO: Handle the update, put and stop actions. 
+            Result = maps:find(Ping, Pairs),
+
+            case Result of
+                {ok, Value} ->
+                    From ! {pong, Value},
+                    loop_statefull(Pairs);
+                error ->
+                    From ! {pong, unknown},
+                    loop_statefull(Pairs)
+            end;
+        {update, From} ->
+            io:format("loop/1: Stateful Hot code swap~n"),
+            From ! {update, ok},
+            ?MODULE:loop_statefull(Pairs);
+        {put, Ping, Pong, From} ->
+            NewPairs = maps:put(Ping, Pong, Pairs),
+            From ! {put, Ping, Pong, ok},
+            loop_statefull(NewPairs);
+        {alive, From} ->
+            From ! {alive, statefull, self()},
+            loop_statefull(Pairs);
+        {stop, From} ->
+            From ! {stop, ok},
+            exit(stop),
+            loop_statefull(Pairs);
         Msg ->
-            io:format("loop2/0: Unknown message: ~p~n", [Msg]),
-            loop(Pairs)
+            io:format("loop/1: Unknown message: ~p~n", [Msg]),
+            loop_statefull(Pairs)
     end.
 
 %%%===================================================================
