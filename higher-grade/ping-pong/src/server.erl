@@ -35,7 +35,11 @@
 %% </p>
 
 -module(server).
--export([start/2, update/0, update/1, stop/0, stop/1, loop/0, loop/1]).
+
+-export([start/2, update/0, update/1, stop/0, stop/1, loop_stateless/0, loop_statefull/1,
+         start/0]).
+
+-include_lib("eunit/include/eunit.hrl").
 
 %% @doc The initial state of the stateful server.
 
