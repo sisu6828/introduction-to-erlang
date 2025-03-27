@@ -177,3 +177,39 @@ loop(Pairs) ->
             io:format("loop2/0: Unknown message: ~p~n", [Msg]),
             loop(Pairs)
     end.
+
+%%%===================================================================
+%%% Includes, defines, types and records
+%%%===================================================================
+
+-include_lib("eunit/include/eunit.hrl").
+
+%%====================================================================
+%%  Test descriptions
+%%====================================================================
+
+%%====================================================================
+%%  Setup and cleanup
+%%====================================================================
+
+%%====================================================================
+%%  Unit tests
+
+% server_create_test_() ->
+%    [
+%     ?_assertMatch(server:start() =/= undefined)
+%    ].
+
+% server_supervisor_test_() ->
+%    [
+%     ?_assertMatch(server:supervisor(true) =/= undefined),
+%     ?_assertMatch(server:supervisor(false) =/= undefined)
+%    ].
+
+% server_stop_test_() ->
+%    [
+%     ?_assertMatch(server:stop() =/= undefined)
+%    ].
+
+%%====================================================================
+%%  Helper functions %%====================================================================
