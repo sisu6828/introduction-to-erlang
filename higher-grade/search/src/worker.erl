@@ -21,7 +21,7 @@ loop(Server, Master, Min, Max, Guesses) ->
     process_flag(trap_exit, true),
     Guess = utils:random(Min, Max),
     Server ! {guess, Guess, self()},
-    master:log_guess(Master, self(),Guess, Guesses),
+    master:log_guess(Master, self(),Guess, Guesses + 1),
 
     receive
         {right, Guess} ->
