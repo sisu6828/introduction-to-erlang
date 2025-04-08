@@ -1,6 +1,13 @@
 -module(master).
 
--export([start/3, stop/1, log_guess/4]).
+-export([start/3, stop/1, log_guess/4, ordMap/0]).
+
+ordMap() ->
+    #{1 => {running, 96, 8},
+      2 => {running, 87, 7},
+      3 => {running, 87, 8},
+      4 => {winner, 82, 8},
+      5 => {running, 78, 7}}.
 
 init() ->
     maps:new().
@@ -46,19 +53,23 @@ loop(CountDown, Map) ->
             loop(CountDown, Workers);
         {right, Guess, From} ->
             io:format("worker ~p reported that it was correct with the guess ~p~n", [From, Guess]),
+
+            ChangedList = [{X, {loser, B, C}} || {X, {_, B, C}} <- maps:to_list(Map)],
+
+            LoserMap = maps:from_list(ChangedList),
+
             {ok, Winner} = maps:find(From, Map),
 
             {_, LastGuess, NumberOfGuesses} = Winner,
 
-            UpdatedMap = maps:update(From, {winner, LastGuess, NumberOfGuesses}, Map),
+            UpdatedMap = maps:update(From, {winner, LastGuess, NumberOfGuesses}, LoserMap),
 
             % Use list comprehension to get all Pids and send an 'EXIT' message to all where PID does not equal our winner
             [Pid ! {'EXIT', self(), loser} || Pid <- maps:keys(Map), Pid =/= From],
 
             %%TODO: change all entries who's status are not winner to be loser
-
-            io:format("Statistics: ~n~p~n", [UpdatedMap]),
-            loop(CountDown, UpdatedMap);
+            io:format("Statistics: ~n~p~n", [UpdatedMap]);
+        % loop(CountDown, UpdatedMap)
         {guess, From, Guess, NumberOfGuesses} ->
             UpdatedMap = maps:update(From, {running, Guess, NumberOfGuesses}, Map),
             loop(CountDown, UpdatedMap);
