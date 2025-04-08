@@ -55,6 +55,8 @@ loop(CountDown, Map) ->
             % Use list comprehension to get all Pids and send an 'EXIT' message to all where PID does not equal our winner
             [Pid ! {'EXIT', self(), loser} || Pid <- maps:keys(Map), Pid =/= From],
 
+            %%TODO: change all entries who's status are not winner to be loser
+
             io:format("Statistics: ~n~p~n", [UpdatedMap]),
             loop(CountDown, UpdatedMap);
         {guess, From, Guess, NumberOfGuesses} ->
