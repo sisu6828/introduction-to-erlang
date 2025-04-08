@@ -49,25 +49,31 @@ loop(0, Map) ->
 loop(CountDown, Map) ->
     receive
         {workers, Workers} ->
-            % io:format("Master received workers map: ~p~n", [Workers]),
             loop(CountDown, Workers);
         {right, Guess, From} ->
             io:format("worker ~p reported that it was correct with the guess ~p~n", [From, Guess]),
 
-            ChangedList = [{X, {loser, B, C}} || {X, {_, B, C}} <- maps:to_list(Map)],
+            LoserList =
+                [{X, {loser, B, C}}
+                 || {X, {_, B, C}}
+                        <- maps:to_list(Map)], % Make a list of all our workers and make them all losers
 
-            LoserMap = maps:from_list(ChangedList),
+            LoserMap =
+                maps:from_list(LoserList), % Convert the list with every worker marked as a loser back into a map
 
-            {ok, Winner} = maps:find(From, Map),
+            {ok, Winner} = maps:find(From, Map), % Save the winner's data in Winner
 
-            {_, LastGuess, NumberOfGuesses} = Winner,
+            {_, LastGuess, NumberOfGuesses} =
+                Winner, % Extract the data out of the tuple using pattern matching
 
-            UpdatedMap = maps:update(From, {winner, LastGuess, NumberOfGuesses}, LoserMap),
+            UpdatedMap =
+                maps:update(From,
+                            {winner, LastGuess, NumberOfGuesses},
+                            LoserMap), % Update the map with the correct worker marked as winner together with their last guess and number of guesses
 
             % Use list comprehension to get all Pids and send an 'EXIT' message to all where PID does not equal our winner
             [Pid ! {'EXIT', self(), loser} || Pid <- maps:keys(Map), Pid =/= From],
 
-            %%TODO: change all entries who's status are not winner to be loser
             io:format("Statistics: ~n~p~n", [UpdatedMap]);
         % loop(CountDown, UpdatedMap)
         {guess, From, Guess, NumberOfGuesses} ->
