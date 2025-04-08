@@ -24,8 +24,7 @@ loop(Server, Master, Min, Max, Guesses) ->
     receive
         {right, Guess} ->
             Master ! {right, Guess, self()},
-            Guess,
-            io:format("<=== FOUND IT :-)");
+            io:format("~p ~*.. B <=== FOUND IT :-> ~n", [self(), utils:width(Max), Guess]);
         {wrong, Guess} ->
             io:format("~p ~*.. B~n", [self(), utils:width(Max), Guess]),
             loop(Server, Master, Min, Max, Guesses + 1);
