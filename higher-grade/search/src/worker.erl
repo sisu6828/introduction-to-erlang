@@ -5,27 +5,25 @@
 %% @doc Starts a worker process. The worker will make random guesses between
 %% `Min' and `Max'.
 
--spec start(Server, Master, Min, Max) -> Worker when
-      Server :: pid(), 
-      Master :: pid(),
-      Min :: number(), 
-      Max :: number(),
-      Worker :: pid().
-
+-spec start(Server, Master, Min, Max) -> Worker
+    when Server :: pid(),
+         Master :: pid(),
+         Min :: number(),
+         Max :: number(),
+         Worker :: pid().
 start(Server, Master, Min, Max) ->
-%    io:format("I am ~p and just spawned",self()),
-   spawn(fun() -> loop(Server, Master, Min, Max, 0) end).
-
+    %    io:format("I am ~p and just spawned",self()),
+    spawn(fun() -> loop(Server, Master, Min, Max, 0) end).
 
 loop(Server, Master, Min, Max, Guesses) ->
     process_flag(trap_exit, true),
     Guess = utils:random(Min, Max),
     Server ! {guess, Guess, self()},
-    master:log_guess(Master, self(),Guess, Guesses + 1),
+    master:log_guess(Master, self(), Guess, Guesses + 1),
 
     receive
         {right, Guess} ->
-            Master !{right, Guess, self()},
+            Master ! {right, Guess, self()},
             Guess,
             io:format("<=== FOUND IT :-)");
         {wrong, Guess} ->
