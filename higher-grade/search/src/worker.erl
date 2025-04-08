@@ -13,6 +13,7 @@
       Worker :: pid().
 
 start(Server, Master, Min, Max) ->
+%    io:format("I am ~p and just spawned",self()),
    spawn(fun() -> loop(Server, Master, Min, Max, 0) end).
 
 
@@ -20,11 +21,13 @@ loop(Server, Master, Min, Max, Guesses) ->
     process_flag(trap_exit, true),
     Guess = utils:random(Min, Max),
     Server ! {guess, Guess, self()},
-    master:log_guess(Master, self()),
+    master:log_guess(Master, self(),Guess, Guesses),
 
     receive
         {right, Guess} ->
-            tbi;
+            Master !{right, Guess, self()},
+            Guess,
+            io:format("<=== FOUND IT :-)");
         {wrong, Guess} ->
             io:format("~p ~*.. B~n", [self(), utils:width(Max), Guess]),
             loop(Server, Master, Min, Max, Guesses + 1);
