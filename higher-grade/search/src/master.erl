@@ -46,12 +46,16 @@ loop(CountDown, Map) ->
             loop(CountDown, Workers);
         {right, Guess, From} ->
             io:format("worker ~p reported that it was correct with the guess ~p~n", [From, Guess]),
-            UpdatedMap =
-                maps:update(From, fun(WorkerData) -> WorkerData#{status => winner} end, Map),
+            {ok, Winner} = maps:find(From, Map),
+
+            {_, LastGuess, NumberOfGuesses} = Winner,
+
+            UpdatedMap = maps:update(From, {winner, LastGuess, NumberOfGuesses}, Map),
 
             % Use list comprehension to get all Pids and send an 'EXIT' message to all where PID does not equal our winner
             [Pid ! {'EXIT', self(), loser} || Pid <- maps:keys(Map), Pid =/= From],
-            io:format("~p~n", [UpdatedMap]),
+
+            io:format("Statistics: ~n~p~n", [UpdatedMap]),
             loop(CountDown, UpdatedMap);
         {guess, From, Guess, NumberOfGuesses} ->
             UpdatedMap = maps:update(From, {running, Guess, NumberOfGuesses}, Map),
